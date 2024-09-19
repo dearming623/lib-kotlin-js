@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS Client</title>
+</head>
+<body>
+<script src="kotlin-kotlin-stdlib.js"></script>
+<script src="kotlin-kotlinx-atomicfu-runtime.js"></script><!-- 使用协程需要依赖 -->
+<script src="kotlinx-atomicfu.js"></script> <!-- 使用协程需要依赖 -->
+<script src="kotlinx-coroutines-core.js"></script> <!-- 使用协程需要依赖 -->
+<script src="math.js"></script>
+<script>
+    // 创建局部变量引用
+    var libKotlinJs = globalThis['lib-kotlin-js'];
+
+    // 创建 Calculator 实例
+    var calculator = new libKotlinJs.Calculator();
+
+    // 调用 add 方法
+    var result = calculator.add(5, 3);
+    console.log(result); // 输出 8
+
+    // 调用 hello 方法
+    libKotlinJs.hello(); // 输出 'hi'
+
+    libKotlinJs.hello2();
+
+    // 使用协程
+    libKotlinJs.hello4();
+</script>
+
+
+<div id="root"></div>
+hallo ralph
+</body>
+</html>
