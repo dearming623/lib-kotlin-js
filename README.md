@@ -3,4 +3,6 @@
 
 工程最终生成lib-xxxxx.js脚本
 
+代码中包含一个使用协程的例子
+
 index.html 是测试javascript的入口程序
