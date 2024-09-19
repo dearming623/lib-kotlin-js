@@ -1,16 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
+import kotlin.io.path.Path
 
 plugins {
     kotlin("multiplatform") version "2.0.20"
 }
 
+val wrapperName = "lib-math"
 kotlin {
     js {
-        moduleName = "lib-math"
+        moduleName = wrapperName
         compilations["main"].packageJson {
             name = "your-custom-library-name"
             version = "1.0.09"
             main = "your-library.js" // This is the entry point of your library
+            customField("type", "module")
         }
         binaries.library()
         nodejs()
@@ -24,12 +27,7 @@ kotlin {
 //            version = "1.0.0"
 //            main = "your-library.js"
 //        }
-
-
-
     }
-
-
 
     sourceSets {
         jsMain.dependencies {
@@ -54,14 +52,39 @@ kotlin {
     }
 
     tasks.named<Kotlin2JsCompile>("compileKotlinJs") {
-        destinationDirectory.set(file("$buildDir/your-output-directory"))
+        val buildPath = layout.buildDirectory.get().toString()
+        val outputPath = Path(buildPath, "output")
+        destinationDirectory.set(file(outputPath))
     }
 
     tasks.register<Copy>("renameJsFile") {
-        dependsOn("compileKotlinJs")
-        from(file("$buildDir/your-output-directory"))
-        into(file("$buildDir/your-output-directory"))
-        rename("your-library\\.js", "custom-library-name.js")
+//        dependsOn("compileKotlinJs")
+        dependsOn("build")
+        val buildPath = layout.buildDirectory.get().toString()
+        val sourcePath = Path(buildPath, "dist", "js", "productionLibrary")
+        val targetPath = Path(buildPath, "output")
+
+        println("-------------->> $sourcePath")
+        from(file(sourcePath))
+        into(file(targetPath))
+        rename("$wrapperName\\.js", "MyKotlinModule.js")
+    }
+
+    tasks.register("runJS") {
+        doLast {
+            val jsCode = """
+            import { greet, Person } from 'C:\Users\Ming\Desktop\my\KotlinJSSample\build\output\MyKotlinModule.js';
+
+            console.log(greet('Ming'));  
+            
+            const person = new Person('Alice');
+            console.log(person.sayHello());  
+        """
+            // 执行JavaScript代码
+            exec {
+                commandLine("node", "-e", jsCode)
+            }
+        }
     }
 }
 
