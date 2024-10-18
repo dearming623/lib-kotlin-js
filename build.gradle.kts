@@ -86,6 +86,45 @@ kotlin {
             }
         }
     }
+
+    tasks.register("testLib") {
+        val buildPath = layout.buildDirectory.get().toString()
+        val sourcePath = Path(buildPath, "dist", "js", "productionLibrary")
+        // 将路径中的 "/" 替换为 "\"
+        val modulePath = sourcePath.toString().replace("\\", "/")
+        doLast {
+            val jsCode = """
+                            import * as Stdlib from "${modulePath}/kotlin-kotlin-stdlib.js";
+                            import * as AtomicfuRuntime from "${modulePath}/kotlin-kotlinx-atomicfu-runtime.js";
+                            import * as Atomicfu from "${modulePath}/kotlinx-atomicfu.js";
+                            import * as CoroutinesCore from "${modulePath}/kotlinx-coroutines-core.js";
+                            import * as LibMath from "${modulePath}/lib-math.js";
+                            
+                            const libKotlinJs = globalThis["lib-kotlin-js"];
+                            // 创建 Calculator 实例
+                            const calculator = new libKotlinJs.Calculator();
+                            
+                            // 调用 add 方法
+                            const result = calculator.add(5, 3);
+                            console.log(result); // 输出 8
+                            
+                            // 调用 hello 方法
+                            libKotlinJs.hello(); // 输出 'hi'
+                            
+                            libKotlinJs.hello2();
+                            
+                            // 使用协程
+                            libKotlinJs.hello4();
+                        """
+            // 执行JavaScript代码
+            exec {
+                commandLine("node", "--experimental-modules" , "-e",  jsCode)
+            }
+        }
+    }
+
+
+
 }
 
 
